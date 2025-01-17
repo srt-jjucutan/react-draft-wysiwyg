@@ -24,7 +24,7 @@ export default function addMention(
     spaceAlreadyPresent = true;
   }
   let updatedSelection = editorState.getSelection().merge({
-    anchorOffset: mentionIndex,
+    anchorOffset: 0,
     focusOffset,
   });
   let newEditorState = EditorState.acceptSelection(editorState, updatedSelection);
