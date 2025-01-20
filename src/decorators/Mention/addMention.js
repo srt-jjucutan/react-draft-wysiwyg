@@ -7,9 +7,10 @@ import { getSelectedBlock } from 'draftjs-utils';
 export default function addMention(
   editorState: EditorState,
   onChange: Function,
+  separator: string,
   trigger: string,
   suggestion: Object,
-  mentionIndex: number
+  mentionIndex: number,
 ): void {
   const { value, url } = suggestion;
   const entityKey = editorState
@@ -18,13 +19,16 @@ export default function addMention(
     .getLastCreatedEntityKey();
   const selectedBlock = getSelectedBlock(editorState);
   const selectedBlockText = selectedBlock.getText();
-  const focusOffset = mentionIndex + 1
+  let initialOffset = editorState.getSelection().focusOffset;
+  const beginningIndex = (selectedBlockText.lastIndexOf(separator + trigger, initialOffset) || 0) + 1
+  const focusOffset = mentionIndex + 1;
+
   let spaceAlreadyPresent = false;
   if (selectedBlockText[focusOffset] === ' ') {
     spaceAlreadyPresent = true;
   }
   let updatedSelection = editorState.getSelection().merge({
-    anchorOffset: 0,
+    anchorOffset: beginningIndex,
     focusOffset,
   });
   let newEditorState = EditorState.acceptSelection(editorState, updatedSelection);
@@ -52,5 +56,13 @@ export default function addMention(
       undefined,
     );
   }
-  onChange(EditorState.push(newEditorState, contentState, 'insert-characters'));
+  newEditorState = EditorState.push(newEditorState, contentState, 'insert-characters')
+  // Make sure the cursor is moved to the end
+  newEditorState = moveFocusToEnd(newEditorState);
+  onChange(newEditorState);
+}
+
+function moveFocusToEnd(editorState) {
+  editorState = EditorState.moveSelectionToEnd(editorState);
+  return EditorState.forceSelection(editorState, editorState.getSelection());
 }

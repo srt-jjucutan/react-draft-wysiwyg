@@ -225,11 +225,12 @@ function getSuggestionComponent() {
     addMention = (mentionIndexOnClick) => {
       const { activeOption } = this.state;
       const editorState = config.getEditorState();
-      const { onChange, trigger } = config;
+      const { onChange, separator, trigger } = config;
       const selectedMention = this.filteredSuggestions[activeOption];
       const mentionIndex = mentionIndexOnClick ?? editorState.getSelection().focusOffset - 1;
+      
       if (selectedMention) {
-        addMention(editorState, onChange, trigger, selectedMention, mentionIndex);
+        addMention(editorState, onChange, separator, trigger, selectedMention, mentionIndex);
       }
     };
 
